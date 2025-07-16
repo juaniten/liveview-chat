@@ -1,0 +1,16 @@
+<div>
+  <h1>Chat Lobby</h1>
+  <div>
+    <ul>
+      <%= for room <- @rooms do %>
+        <li>{room}</li>
+      <% end %>
+    </ul>
+  </div>
+  <div>
+    <form phx-submit="create_room">
+      <input type="text" name="room" placeholder="Enter room name" />
+      <button type="submit">Create</button>
+    </form>
+  </div>
+</div>

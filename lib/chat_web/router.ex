@@ -1,5 +1,6 @@
 defmodule ChatWeb.Router do
   use ChatWeb, :router
+  import ChatWeb.Login
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -10,6 +11,11 @@ defmodule ChatWeb.Router do
     plug :put_secure_browser_headers
   end
 
+  pipeline :authenticated do
+    plug :fetch_session
+    plug ChatWeb.Login, :require_authentication
+  end
+
   pipeline :api do
     plug :accepts, ["json"]
   end
@@ -18,6 +24,17 @@ defmodule ChatWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+
+    get "/login", LoginController, :home
+    post "/login", LoginController, :create
+    get "/logout", LoginController, :delete
+  end
+
+  scope "/", ChatWeb do
+    pipe_through [:browser, :authenticated]
+
+    live "/lobby", Lobby
+    live "/room/:id", Room
   end
 
   # Other scopes may use custom stacks.

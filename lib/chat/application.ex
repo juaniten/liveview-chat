@@ -17,8 +17,10 @@ defmodule Chat.Application do
       # {Chat.Worker, arg},
       # Start to serve requests, typically the last entry
 
-      {Registry, keys: :unique, name: ChatWeb.RoomRegistry},
-      {DynamicSupervisor, name: ChatWeb.RoomSupervisor, strategy: :one_for_one},
+      {Registry, keys: :unique, name: Chat.RoomRegistry},
+      Chat.RoomSupervisor,
+      Chat.LobbyServer,
+      # {DynamicSupervisor, name: Chat.Lobbyerver, strategy: :one_for_one},
       ChatWeb.Endpoint
     ]
 

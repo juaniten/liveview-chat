@@ -1,16 +1,26 @@
 defmodule ChatWeb.Lobby do
   use ChatWeb, :live_view
 
-  defp start_or_get_room(room_id) do
-    case Registry.lookup(Clock.RoomRegistry, room_id) do
-      [{pid, _}] ->
-        {:ok, pid}
+  def mount(_params, _session, socket) do
+    {:ok, rooms} = Chat.LobbyServer.subscribe()
+    {:ok, assign(socket, rooms: rooms)}
+  end
 
-      [] ->
-        DynamicSupervisor.start_child(
-          ChatWeb.RoomSupervisor,
-          {ChatWeb.Room, room_id}
-        )
+  def handle_event("create_room", %{"room" => ""}, socket),
+    do: {:noreply, put_flash(socket, :error, "Room name cannot be empty")}
+
+  def handle_event("create_room", %{"room" => name}, socket) do
+    case Chat.LobbyServer.create_room(name) do
+      :ok ->
+        {:noreply, clear_flash(socket)}
+
+      {:error, :already_exists} ->
+        {:noreply, put_flash(socket, :error, "That room already exists")}
+
+      {:error, _} ->
+        {:noreply, put_flash(socket, :error, "Room creation failed")}
     end
   end
+
+  def handle_info({:rooms_updated, rooms}, socket), do: {:noreply, assign(socket, rooms: rooms)}
 end
