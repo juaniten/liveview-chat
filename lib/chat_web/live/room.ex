@@ -16,6 +16,7 @@ defmodule ChatWeb.Room do
     {:ok,
      assign(socket,
        room_id: room_id,
+       notifications: [],
        users: users,
        messages: messages,
        user_id: user_id
@@ -33,5 +34,9 @@ defmodule ChatWeb.Room do
   def handle_info({:users_updated, users}, socket), do: {:noreply, assign(socket, users: users)}
 
   def handle_info({:messages_updated, messages}, socket),
-    do: {:noreply, assign(socket, messages: Enum.reverse(messages))}
+    do: {:noreply, assign(socket, messages: messages)}
+
+  def handle_info({:notification, from_user_id}, socket) do
+    {:noreply, assign(socket, notifications: socket.assigns.notifications ++ [from_user_id])}
+  end
 end

@@ -19,21 +19,23 @@ defmodule Chat.RoomServer do
 
   @impl GenServer
   def init(_init_arg) do
-    {:ok, %{messages: [], subscribers: %{}}}
+    {:ok, %{notifications: [], messages: [], subscribers: %{}}}
   end
 
   @impl GenServer
   def handle_call({:subscribe, pid, user_id}, _from, state) do
     Process.monitor(pid)
     new_state = %{state | subscribers: Map.merge(state.subscribers, %{pid => user_id})}
-    IO.inspect(new_state, label: "STATE AFTER SUBSCRIPTION")
+    # IO.inspect(new_state, label: "STATE AFTER SUBSCRIPTION")
     notify_users_update(state)
-    {:reply, {:ok, {get_users(new_state), new_state.messages}}, new_state}
+
+    {:reply, {:ok, {new_state.notifications, get_users(new_state), new_state.messages}},
+     new_state}
   end
 
   @impl GenServer
   def handle_cast({:create_message, {user_id, message}}, state) do
-    new_messages = [{user_id, message} | state.messages]
+    new_messages = state.messages ++ [{user_id, message}]
     notify_messages_update(new_messages, Map.keys(state.subscribers))
     {:noreply, %{state | messages: new_messages}}
   end
@@ -62,6 +64,13 @@ defmodule Chat.RoomServer do
     Enum.each(subscribers, fn pid ->
       send(pid, {:messages_updated, messages})
     end)
+  end
+
+  defp notify_chat(from_user_id, subscribers, to_user_id) do
+    subscribers
+    |> Enum.filter(fn {_pid, user_id} -> user_id == to_user_id end)
+    |> Map.keys()
+    |> Enum.each(fn pid -> send(pid, {:notification, from_user_id}) end)
   end
 
   defp get_users(state), do: state.subscribers |> Map.values() |> Enum.uniq()
