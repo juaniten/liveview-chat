@@ -2,6 +2,14 @@ defmodule ChatWeb.Login do
   import Plug.Conn
   import Phoenix.Controller
 
+  def init(default) do
+    default
+  end
+
+  def call(conn, _opts) do
+    require_authentication(conn, _opts)
+  end
+
   def require_authentication(conn, _opts) do
     if get_session(conn, :username) do
       conn

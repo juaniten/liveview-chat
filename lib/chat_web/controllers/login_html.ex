@@ -5,6 +5,7 @@ defmodule ChatWeb.LoginHTML do
   See the `page_html` directory for all templates available.
   """
   use ChatWeb, :html
+  import ChatWeb.CoreComponents
 
   embed_templates "login_html/*"
 end

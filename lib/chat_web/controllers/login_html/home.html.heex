@@ -1,10 +1,6 @@
 <h1>Login</h1>
 
-<%= if @conn.assigns[:flash][:error] do %>
-  <div class="alert alert-danger">{@conn.assigns.flash[:error]}</div>
-<% end %>
-
-<form action="/login" method="post">
-  <input type="text" name="username" placeholder="Enter username" required />
-  <button type="submit">Login</button>
-</form>
+<.form for={%{}} action="/login" method="post">
+  <.input type="text" name="username" value="" placeholder="Enter username" required />
+  <.button>Login</.button>
+</.form>

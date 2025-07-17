@@ -1,6 +1,5 @@
 defmodule ChatWeb.Router do
   use ChatWeb, :router
-  import ChatWeb.Login
 
   pipeline :browser do
     plug :accepts, ["html"]
