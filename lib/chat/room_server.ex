@@ -19,7 +19,7 @@ defmodule Chat.RoomServer do
 
   @impl GenServer
   def init(_init_arg) do
-    {:ok, %{notifications: [], messages: [], subscribers: %{}}}
+    {:ok, %{messages: [], subscribers: %{}}}
   end
 
   @impl GenServer
@@ -29,8 +29,7 @@ defmodule Chat.RoomServer do
     # IO.inspect(new_state, label: "STATE AFTER SUBSCRIPTION")
     notify_users_update(state)
 
-    {:reply, {:ok, {new_state.notifications, get_users(new_state), new_state.messages}},
-     new_state}
+    {:reply, {:ok, {get_users(new_state), new_state.messages}}, new_state}
   end
 
   @impl GenServer
@@ -47,7 +46,7 @@ defmodule Chat.RoomServer do
     # IO.inspect(state, label: "STATE")
     new_subscribers = Map.delete(state.subscribers, pid)
     new_state = put_in(state.subscribers, new_subscribers)
-    IO.inspect(new_state, label: "NEW STATE")
+    # IO.inspect(new_state, label: "NEW STATE")
     notify_users_update(new_state)
     {:noreply, new_state}
   end
