@@ -1,0 +1,27 @@
+<div>
+  <h1>Room {@room_id}</h1>
+  <p>Hello, {@user_id}</p>
+  <div>
+    <h2>Active users</h2>
+    <ul>
+      <%= for user <- @users do %>
+        <li>{user}</li>
+      <% end %>
+    </ul>
+  </div>
+  <div>
+    <h2>Messages</h2>
+    <ul>
+      <%= for {user, message} <- @messages do %>
+        <li>{user}: {message}</li>
+      <% end %>
+    </ul>
+  </div>
+
+  <div>
+    <form phx-submit="send_message">
+      <input type="text" name="message" placeholder="Enter message" />
+      <button type="submit">Send</button>
+    </form>
+  </div>
+</div>

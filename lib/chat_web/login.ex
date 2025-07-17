@@ -6,8 +6,8 @@ defmodule ChatWeb.Login do
     default
   end
 
-  def call(conn, _opts) do
-    require_authentication(conn, _opts)
+  def call(conn, opts) do
+    require_authentication(conn, opts)
   end
 
   def require_authentication(conn, _opts) do

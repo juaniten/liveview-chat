@@ -10,7 +10,7 @@ defmodule Chat.RoomSupervisor do
   end
 
   def start_room(name) do
-    spec = {Chat.Room, name}
+    spec = {Chat.RoomServer, name}
     DynamicSupervisor.start_child(__MODULE__, spec)
   end
 end
