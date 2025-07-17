@@ -33,5 +33,5 @@ defmodule ChatWeb.Room do
   def handle_info({:users_updated, users}, socket), do: {:noreply, assign(socket, users: users)}
 
   def handle_info({:messages_updated, messages}, socket),
-    do: {:noreply, assign(socket, messages: messages)}
+    do: {:noreply, assign(socket, messages: Enum.reverse(messages))}
 end
