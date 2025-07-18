@@ -56,6 +56,8 @@ defmodule Chat.RoomServer do
     {:noreply, new_state}
   end
 
+  # Notifications
+
   defp notify_users_update(state) do
     subscribers = state.subscribers |> Map.keys()
 

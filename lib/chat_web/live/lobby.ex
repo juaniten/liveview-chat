@@ -3,7 +3,7 @@ defmodule ChatWeb.Lobby do
 
   def mount(_params, session, socket) do
     Chat.LobbyServer.subscribe()
-    {:ok, assign(socket, rooms: [], username: session["username"])}
+    {:ok, assign(socket, page_title: "Lobby", rooms: [], username: session["username"])}
   end
 
   def handle_event("create_room", %{"room" => ""}, socket),

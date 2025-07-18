@@ -17,6 +17,7 @@ defmodule ChatWeb.Room do
       _ ->
         {:ok,
          assign(socket,
+           page_title: "Room #{room_id}",
            room_id: room_id,
            notifications: [],
            users: [],
