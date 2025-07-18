@@ -32,9 +32,9 @@ defmodule ChatWeb.Router do
   scope "/", ChatWeb do
     pipe_through [:browser, :authenticated]
 
-    live "/lobby", Lobby
-    get "/room/:room_id", RoomController, :show
-    # live "/room/:room_id", Room
+    live "/lobby", Lobby, :app
+    # get "/room/:room_id", RoomController, :show
+    live "/room/:room_id", Room
   end
 
   # Other scopes may use custom stacks.
