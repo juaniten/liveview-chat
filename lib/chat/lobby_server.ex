@@ -24,9 +24,8 @@ defmodule Chat.LobbyServer do
   @impl GenServer
   def handle_cast({:subscribe, pid}, state) do
     Process.monitor(pid)
-    new_state = %{state | subscribers: MapSet.put(state.subscribers, pid)}
     notify_rooms_update(state.rooms, [pid])
-    {:noreply, new_state}
+    {:noreply, %{state | subscribers: MapSet.put(state.subscribers, pid)}}
   end
 
   @impl GenServer

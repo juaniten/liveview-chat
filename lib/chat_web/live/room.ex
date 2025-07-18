@@ -4,29 +4,25 @@ defmodule ChatWeb.Room do
   alias Chat.RoomServer
 
   def mount(params, session, socket) do
-    # IO.puts("MOUNT ROOM----------------------")
-    # IO.inspect(params, label: "params")
-    # IO.inspect(socket, label: "socket")
-    # IO.puts("----------------------")
     room_id = params["room_id"]
     user_id = session["username"]
-    # if connected?(socket)
-    case RoomServer.subscribe({room_id, user_id}) do
-      {:ok, {users, messages}} ->
-        {:ok,
-         assign(socket,
-           room_id: room_id,
-           notifications: [],
-           users: users,
-           messages: messages,
-           user_id: user_id
-         )}
 
+    case RoomServer.subscribe({room_id, user_id}) do
       {:error, :room_not_found} ->
         {:ok,
          socket
          |> put_flash(:error, "Room #{room_id} does not exist")
          |> push_navigate(to: ~p"/lobby")}
+
+      _ ->
+        {:ok,
+         assign(socket,
+           room_id: room_id,
+           notifications: [],
+           users: [],
+           messages: [],
+           user_id: user_id
+         )}
     end
   end
 

@@ -9,11 +9,8 @@ defmodule Chat.RoomServer do
 
   def subscribe({room_id, user_id}) do
     case Registry.lookup(Chat.RoomRegistry, room_id) do
-      [{pid, _value}] ->
-        GenServer.call(pid, {:subscribe, self(), user_id})
-
-      [] ->
-        {:error, :room_not_found}
+      [{pid, _value}] -> GenServer.cast(pid, {:subscribe, self(), user_id})
+      [] -> {:error, :room_not_found}
     end
   end
 
@@ -25,18 +22,16 @@ defmodule Chat.RoomServer do
   # Server callbacks
 
   @impl GenServer
-  def init(_init_arg) do
-    {:ok, %{messages: [], subscribers: %{}}}
-  end
+  def init(_init_arg), do: {:ok, %{messages: [], subscribers: %{}}}
 
   @impl GenServer
-  def handle_call({:subscribe, pid, user_id}, _from, state) do
+  def handle_cast({:subscribe, pid, user_id}, state) do
     Process.monitor(pid)
     new_state = %{state | subscribers: Map.merge(state.subscribers, %{pid => user_id})}
-    # IO.inspect(new_state, label: "STATE AFTER SUBSCRIPTION")
-    notify_users_update(state)
+    notify_users_update(new_state)
+    send(pid, {:messages_updated, new_state.messages})
 
-    {:reply, {:ok, {get_users(new_state), new_state.messages}}, new_state}
+    {:noreply, new_state}
   end
 
   @impl GenServer
@@ -48,12 +43,8 @@ defmodule Chat.RoomServer do
 
   @impl GenServer
   def handle_info({:DOWN, _ref, :process, pid, _reason}, state) do
-    # IO.inspect(reason, label: "PROCESS DOWN, REASON")
-    # IO.inspect(pid, label: "PID")
-    # IO.inspect(state, label: "STATE")
     new_subscribers = Map.delete(state.subscribers, pid)
     new_state = put_in(state.subscribers, new_subscribers)
-    # IO.inspect(new_state, label: "NEW STATE")
     notify_users_update(new_state)
     {:noreply, new_state}
   end
