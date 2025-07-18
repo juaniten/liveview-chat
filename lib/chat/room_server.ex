@@ -35,6 +35,13 @@ defmodule Chat.RoomServer do
   end
 
   @impl GenServer
+  def handle_cast({:unsubscribe, pid}, state) do
+    new_state = %{state | subscribers: MapSet.delete(state.subscribers, pid)}
+    notify_users_update(new_state)
+    {:noreply, new_state}
+  end
+
+  @impl GenServer
   def handle_cast({:create_message, {user_id, message}}, state) do
     new_messages = state.messages ++ [{user_id, message}]
     notify_messages_update(new_messages, Map.keys(state.subscribers))

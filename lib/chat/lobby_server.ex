@@ -29,6 +29,10 @@ defmodule Chat.LobbyServer do
   end
 
   @impl GenServer
+  def handle_cast({:unsubscribe, pid}, state),
+    do: {:noreply, %{state | subscribers: MapSet.delete(state.subscribers, pid)}}
+
+  @impl GenServer
   def handle_call({:create_room, name}, _from, state) do
     case Chat.RoomSupervisor.start_room(name) do
       {:ok, _pid} ->
