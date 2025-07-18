@@ -7,8 +7,15 @@ defmodule Chat.RoomServer do
 
   defp via(room_id), do: {:via, Registry, {Chat.RoomRegistry, room_id}}
 
-  def subscribe({room_id, user_id}),
-    do: GenServer.call(via(room_id), {:subscribe, self(), user_id})
+  def subscribe({room_id, user_id}) do
+    case Registry.lookup(Chat.RoomRegistry, room_id) do
+      [{pid, _value}] ->
+        GenServer.call(pid, {:subscribe, self(), user_id})
+
+      [] ->
+        {:error, :room_not_found}
+    end
+  end
 
   def unsubscribe(room_id), do: GenServer.cast(via(room_id), {:unsubscribe, self()})
 

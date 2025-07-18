@@ -11,16 +11,23 @@ defmodule ChatWeb.Room do
     room_id = params["room_id"]
     user_id = session["username"]
     # if connected?(socket)
-    {:ok, {users, messages}} = RoomServer.subscribe({room_id, user_id})
+    case RoomServer.subscribe({room_id, user_id}) do
+      {:ok, {users, messages}} ->
+        {:ok,
+         assign(socket,
+           room_id: room_id,
+           notifications: [],
+           users: users,
+           messages: messages,
+           user_id: user_id
+         )}
 
-    {:ok,
-     assign(socket,
-       room_id: room_id,
-       notifications: [],
-       users: users,
-       messages: messages,
-       user_id: user_id
-     )}
+      {:error, :room_not_found} ->
+        {:ok,
+         socket
+         |> put_flash(:error, "Room #{room_id} does not exist")
+         |> push_navigate(to: ~p"/lobby")}
+    end
   end
 
   def handle_event("send_message", %{"message" => ""}, socket),
