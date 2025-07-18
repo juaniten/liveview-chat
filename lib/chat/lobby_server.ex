@@ -5,7 +5,7 @@ defmodule Chat.LobbyServer do
 
   def start_link(_init_arg), do: GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
 
-  def subscribe(), do: GenServer.call(Chat.LobbyServer, {:subscribe, self()})
+  def subscribe(), do: GenServer.cast(Chat.LobbyServer, {:subscribe, self()})
 
   def create_room(name), do: GenServer.call(__MODULE__, {:create_room, name})
 
@@ -22,10 +22,11 @@ defmodule Chat.LobbyServer do
   end
 
   @impl GenServer
-  def handle_call({:subscribe, pid}, _from, state) do
+  def handle_cast({:subscribe, pid}, state) do
     Process.monitor(pid)
     new_state = %{state | subscribers: MapSet.put(state.subscribers, pid)}
-    {:reply, {:ok, state.rooms}, new_state}
+    notify_rooms_update(state.rooms, [pid])
+    {:noreply, new_state}
   end
 
   @impl GenServer
@@ -33,7 +34,7 @@ defmodule Chat.LobbyServer do
     case Chat.RoomSupervisor.start_room(name) do
       {:ok, _pid} ->
         rooms = [name | state.rooms]
-        notify_subscribers(rooms, state.subscribers)
+        notify_rooms_update(rooms, state.subscribers)
         {:reply, :ok, %{state | rooms: rooms}}
 
       {:error, {:already_started, _pid}} ->
@@ -50,7 +51,7 @@ defmodule Chat.LobbyServer do
     {:noreply, %{state | subscribers: new_subscribers}}
   end
 
-  defp notify_subscribers(rooms, subscribers) do
+  defp notify_rooms_update(rooms, subscribers) do
     Enum.each(subscribers, fn pid ->
       send(pid, {:rooms_updated, rooms})
     end)

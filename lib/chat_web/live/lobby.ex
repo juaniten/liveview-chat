@@ -2,8 +2,8 @@ defmodule ChatWeb.Lobby do
   use ChatWeb, :live_view
 
   def mount(_params, session, socket) do
-    {:ok, rooms} = Chat.LobbyServer.subscribe()
-    {:ok, assign(socket, rooms: rooms, username: session["username"])}
+    Chat.LobbyServer.subscribe()
+    {:ok, assign(socket, rooms: [], username: session["username"])}
   end
 
   def handle_event("create_room", %{"room" => ""}, socket),
