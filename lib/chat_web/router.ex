@@ -33,7 +33,8 @@ defmodule ChatWeb.Router do
     pipe_through [:browser, :authenticated]
 
     live "/lobby", Lobby
-    live "/room/:room_id", Room
+    get "/room/:room_id", RoomController, :show
+    # live "/room/:room_id", Room
   end
 
   # Other scopes may use custom stacks.

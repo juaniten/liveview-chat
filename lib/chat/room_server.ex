@@ -19,6 +19,8 @@ defmodule Chat.RoomServer do
   def create_message(room_id, user_id, message),
     do: GenServer.cast(via(room_id), {:create_message, {user_id, message}})
 
+  def exists?(room_id), do: Registry.lookup(Chat.RoomRegistry, room_id) != []
+
   # Server callbacks
 
   @impl GenServer

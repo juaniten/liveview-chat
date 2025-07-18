@@ -6,25 +6,17 @@ defmodule ChatWeb.Room do
   def mount(params, session, socket) do
     room_id = params["room_id"]
     user_id = session["username"]
+    RoomServer.subscribe({room_id, user_id})
 
-    case RoomServer.subscribe({room_id, user_id}) do
-      {:error, :room_not_found} ->
-        {:ok,
-         socket
-         |> put_flash(:error, "Room #{room_id} does not exist")
-         |> push_navigate(to: ~p"/lobby")}
-
-      _ ->
-        {:ok,
-         assign(socket,
-           page_title: "Room #{room_id}",
-           room_id: room_id,
-           notifications: [],
-           users: [],
-           messages: [],
-           user_id: user_id
-         )}
-    end
+    {:ok,
+     assign(socket,
+       page_title: "Room #{room_id}",
+       room_id: room_id,
+       notifications: [],
+       users: [],
+       messages: [],
+       user_id: user_id
+     )}
   end
 
   def handle_event("send_message", %{"message" => ""}, socket),
